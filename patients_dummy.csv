@@ -19,3 +19,26 @@ P-1017,50,F,Breast Cancer (Stg 1),2023-11-15,Active,15000.00,Lump detected durin
 P-1018,41,M,Kidney Stones,2024-01-20,Discharged,4300.00,Severe flank pain. Lithotripsy performed to break 6mm stone.
 P-1019,22,F,Malaria,2024-04-04,Active,1800.00,Travel history to tropical region. Fever cycles every 48 hours.
 P-1020,80,M,Stroke,2024-03-29,ICU,28000.00,Right-side paralysis. CT scan confirms ischemic stroke. tPA administered.
+patient_id,age,gender,diagnosis,admission_date,status,bill_amount,clinical_notes
+P-1001,45,M,Influenza,2024-02-15,Discharged,1200.50,Patient presented with high fever (102F) and severe body aches. Prescribed Tamiflu.
+P-1002,32,F,Chronic Sinusitis,2024-03-10,Active,850.00,Recurring sinus pressure. History of seasonal allergies. MRI ordered.
+P-1003,58,M,Hypertension,2024-01-22,Discharged,2400.00,BP 160/100 upon arrival. Administered beta-blockers.
+P-1004,27,F,Migraine,2024-04-05,Outpatient,300.00,Severe photophobia and nausea. History of migraines since teenage years.
+P-1005,65,M,Diabetes Type 2,2023-12-12,Active,4500.25,Hyperglycemia event. Insulin stabilized.
+P-1006,19,F,Viral Fever,2024-02-28,Discharged,600.00,Generic viral symptoms. Hydration therapy.
+P-1007,45,M,Fracture (Tibial),2024-03-15,Surgery Scheduled,8900.00,Motorcycle accident. Compound fracture.
+P-1008,34,F,Influenza,2024-02-18,Discharged,1150.00,Standard flu symptoms. Recovered.
+P-1009,29,M,Gastritis,2024-01-30,Outpatient,450.00,Stomach pain after meals. H. pylori negative.
+P-1010,52,F,Covid-19,2024-01-05,Discharged,3200.00,Required O2 support. Remdesivir course completed.
+P-1011,71,M,Pneumonia,2024-03-20,ICU,12500.00,Severe breathing difficulty. Oxygen saturation 88%.
+P-1012,44,F,Asthma Attack,2024-04-01,Active,2100.00,Triggered by dust. Nebulizer effective.
+P-1013,60,M,Cardiac Arrest,2024-04-02,ICU,45000.00,Collapsed at home. CPR administered. Stent placement scheduled.
+P-1014,12,M,Dengue Fever,2024-03-25,Active,3200.00,Low platelet count. Monitoring required.
+P-1015,33,F,Anemia,2024-02-10,Outpatient,200.00,Hb levels low. Prescribed iron supplements.
+P-1016,25,M,Appendicitis,2024-03-18,Surgery Complete,6700.00,Acute pain in lower right quadrant. Appendectomy performed.
+P-1017,50,F,Breast Cancer (Stg 1),2023-11-15,Active,15000.00,Lump detected. Biopsy confirms malignancy. Chemo started.
+P-1018,41,M,Kidney Stones,2024-01-20,Discharged,4300.00,Severe flank pain. Lithotripsy performed.
+P-1019,22,F,Lung Cancer,2024-04-04,Active,18000.00,Shortness of breath. CT scan shows mass in right lung. Biopsy positive.
+P-1020,80,M,Stroke,2024-03-29,ICU,28000.00,Ischemic stroke. tPA administered.
+P-1021,55,M,Leukemia,2024-03-10,Active,22000.00,Abnormal WBC count. Chemotherapy induction phase started.
+P-1022,60,F,Heart Attack,2024-04-06,ICU,35000.00,Myocardial infarction. Angioplasty performed successfully.
