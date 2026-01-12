@@ -12,34 +12,72 @@ if "data" not in st.session_state:
     try:
         st.session_state["data"] = pd.read_csv("patients_dummy.csv")
     except:
-        # Fallback with empty structure
+        # Fallback
         st.session_state["data"] = pd.DataFrame(columns=["patient_id","age","gender","diagnosis","admission_date","status","bill_amount","clinical_notes"])
 
+# --- FEATURE: PRE-LOADED CHAT HISTORY ---
+# This simulates "Memory" so the user doesn't see a blank screen on login
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {"role": "assistant", "content": "Welcome back, Dr. Demo. I have restored your session from **Yesterday, 14:00**."},
+        {"role": "user", "content": "Show me the ICU capacity status."},
+        {"role": "assistant", "content": "Currently, **4 patients** are in ICU (Cardiac, Stroke, Pneumonia). Bed capacity is at 85%."}
+    ]
 
 df = st.session_state["data"]
 
-# --- ADVANCED LOGIC ENGINE (v3.1 - Full Text Search) ---
+# --- INTELLIGENT SEARCH ENGINE (v4.0) ---
 def execute_natural_language_query(prompt, data):
     prompt_lower = prompt.lower()
     sql_generated = ""
     result = None
     explanation = ""
 
-    # DYNAMIC SEARCH: Scans Diagnosis AND Clinical Notes
-    # This allows searching for symptoms ("fever") not just disease names
-    
-    # 1. Search for specific terms in Diagnosis OR Notes
-    matched_rows = data[
-        data['diagnosis'].str.lower().str.contains(prompt_lower, na=False) | 
-        data['clinical_notes'].str.lower().str.contains(prompt_lower, na=False)
-    ]
+    # --- STEP 1: KEYWORD CLEANING ---
+    stop_phrases = ["show me patients with", "show me", "patients with", "who has", "search for", "find", "list", "the", "patients", "patient"]
+    clean_search_term = prompt_lower
+    for phrase in stop_phrases:
+        clean_search_term = clean_search_term.replace(phrase, "")
+    clean_search_term = clean_search_term.strip()
 
-    # LOGIC BRANCHES
-    if "count" in prompt_lower:
+    # --- STEP 2: SYNONYM MAPPING (Smart Grouping) ---
+    # This ensures "Heart Attack" finds "Cardiac" and "Sugar" finds "Diabetes"
+    synonyms = {
+        "heart attack": "cardiac",
+        "sugar": "diabetes",
+        "flu": "influenza",
+        "broken": "fracture",
+        "breathing": "lung",
+        "cancer": "cancer" # Ensures generic 'cancer' search works
+    }
+    
+    # If the user used a common term, we swap it for the medical term
+    # But we ALSO keep the original term to search notes
+    search_terms = [clean_search_term]
+    for key, value in synonyms.items():
+        if key in clean_search_term:
+            search_terms.append(value)
+
+    # --- STEP 3: EXECUTE SEARCH ---
+    matched_rows = pd.DataFrame()
+    
+    if len(clean_search_term) > 1:
+        # Search for ANY of the terms (Original OR Synonym)
+        # e.g. "Heart Attack" searches for "Heart Attack" OR "Cardiac"
+        query_mask = False
+        for term in search_terms:
+            mask = (
+                data['diagnosis'].str.lower().str.contains(term, na=False) | 
+                data['clinical_notes'].str.lower().str.contains(term, na=False)
+            )
+            query_mask = query_mask | mask
+            
+        matched_rows = data[query_mask]
+
+    # --- STEP 4: GENERATE OUTPUT ---
+    if "count" in prompt_lower and "all" in prompt_lower:
         sql_generated = "SELECT COUNT(*) FROM patients;"
-        explanation = f"Total count: {len(data)} patients in current cohort."
+        explanation = f"Total database size: {len(data)} records."
         result = None 
         
     elif "average" in prompt_lower:
@@ -55,12 +93,10 @@ def execute_natural_language_query(prompt, data):
             result = None
             
     elif not matched_rows.empty:
-        # If we found matches in diagnosis or notes
-        # We extract the key term from the prompt for the SQL display
-        key_term = prompt.replace("Show me patients with ", "").replace("Search for ", "")
-        sql_generated = f"SELECT * FROM patients WHERE diagnosis LIKE '%{key_term}%' OR clinical_notes LIKE '%{key_term}%';"
+        # Success
+        sql_generated = f"SELECT * FROM patients WHERE diagnosis LIKE '%{clean_search_term}%' OR synonyms match;"
         result = matched_rows
-        explanation = f"Query executed. Found {len(result)} records matching keywords in Diagnosis or Clinical Notes."
+        explanation = f"Found {len(result)} records related to '{clean_search_term}'."
 
     elif "p-" in prompt_lower:
         match = re.search(r"p-\d+", prompt_lower)
@@ -74,17 +110,17 @@ def execute_natural_language_query(prompt, data):
             explanation = "No ID matched."
 
     else:
-        # Fallback
-        sql_generated = "SELECT * FROM patients ORDER BY admission_date DESC LIMIT 5;"
-        result = data.tail(5)
-        explanation = "Could not map specific intent. Displaying most recent records."
+        # Strict Empty Result
+        sql_generated = f"SELECT * FROM patients WHERE diagnosis = '{clean_search_term}';"
+        result = pd.DataFrame()
+        explanation = f"⚠️ No records found for '{clean_search_term}'. Please check the spelling."
 
     return sql_generated, result, explanation
 
 # --- LOGIN SCREEN ---
 def login_screen():
     st.markdown("<h1 style='text-align: center;'>⚡ VibeOps Enterprise</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>NLP-to-SQL Healthcare Interface | v3.1 EHR Build</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>NLP-to-SQL Healthcare Interface | v4.0 Production</p>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
@@ -101,7 +137,6 @@ def login_screen():
 
 # --- MAIN DASHBOARD ---
 def main_interface():
-    # --- SIDEBAR: DOCTOR'S PORTAL ---
     with st.sidebar:
         st.title("⚡ VibeOps")
         st.write("**Connected to:** Secure_Health_DB_v2")
@@ -113,7 +148,6 @@ def main_interface():
         
         st.markdown("---")
         
-        # --- DOCTOR ADMISSION FORM ---
         with st.expander("➕ Admit / Update Patient File", expanded=False):
             with st.form("add_patient"):
                 st.write("**Patient Intake Form**")
@@ -125,12 +159,8 @@ def main_interface():
                 with c2:
                     new_gender = st.selectbox("Gender", ["M", "F", "Other"])
                 
-                # FREE TEXT INPUTS FOR UNLIMITED DISEASE SUPPORT
-                new_diag = st.text_input("Primary Diagnosis", placeholder="Type ANY disease (e.g. Zika, Ebola...)")
-                
-                # DETAILED CLINICAL NOTES
-                new_notes = st.text_area("Clinical Notes & History", height=100, placeholder="Enter detailed symptoms, history, vitals, prescriptions...")
-                
+                new_diag = st.text_input("Primary Diagnosis", placeholder="Type ANY disease...")
+                new_notes = st.text_area("Clinical Notes & History", height=100, placeholder="Enter detailed symptoms...")
                 new_status = st.selectbox("Status", ["Active", "ICU", "Outpatient", "Discharged"])
                 new_bill = st.number_input("Est. Bill ($)", value=1000.0)
                 
@@ -156,15 +186,14 @@ def main_interface():
             st.session_state["authenticated"] = False
             st.rerun()
 
-    # --- MAIN CHAT ---
     st.title("Intelligent Query Interface")
-    st.markdown("Search by **Disease**, **Patient ID**, or **Symptoms in Notes**.")
+    st.markdown("Search by **Disease Group** (e.g. 'Cancer'), **Patient ID**, or **Symptoms**.")
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("Try: 'Show me patients with fever' or 'Who has a broken bone?'"):
+    if prompt := st.chat_input("Try: 'Show me all cancer patients' or 'Who had a heart attack?'"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -184,7 +213,6 @@ def main_interface():
             
             st.session_state.messages.append({"role": "assistant", "content": f"Executed: `{sql}`"})
 
-# --- APP CONTROL ---
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
