@@ -1,0 +1,11 @@
+patient_id,age,gender,diagnosis,admission_date,status,bill_amount
+P-1001,45,M,Influenza,2024-02-15,Discharged,1200.50
+P-1002,32,F,Chronic Sinusitis,2024-03-10,Active,850.00
+P-1003,58,M,Hypertension,2024-01-22,Discharged,2400.00
+P-1004,27,F,Migraine,2024-04-05,Outpatient,300.00
+P-1005,65,M,Diabetes Type 2,2023-12-12,Active,4500.25
+P-1006,19,F,Viral Fever,2024-02-28,Discharged,600.00
+P-1007,45,M,Fracture (Tibial),2024-03-15,Surgery Scheduled,8900.00
+P-1008,34,F,Influenza,2024-02-18,Discharged,1150.00
+P-1009,29,M,Gastritis,2024-01-30,Outpatient,450.00
+P-1010,52,F,Covid-19,2024-01-05,Discharged,3200.00
