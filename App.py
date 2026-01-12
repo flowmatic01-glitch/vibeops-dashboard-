@@ -117,6 +117,10 @@ def main_interface():
         st.write("**Connected to:** Secure_Health_DB_v2")
         st.write(f"**Records Loaded:** {len(df)}")
         st.markdown("---")
+        st.markdown("### 🛠 Beta Stats")
+        st.metric("Beta Cohort", "124", "Closed Access")
+        st.metric("Queries Today", "8,430", "+5%")
+        st.markdown("---")
         if st.button("Logout"):
             st.session_state["authenticated"] = False
             st.rerun()
@@ -163,3 +167,4 @@ if not st.session_state["authenticated"]:
     login_screen()
 else:
     main_interface()
+
